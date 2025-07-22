@@ -12,26 +12,29 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🧱 Build step (simulate for static site)
+      - name: 🧱 Build site
         run: |
           echo "Building site..."
           mkdir -p dist
           rsync -av --exclude dist . dist/
           echo "Build completed."
 
-      - name: ✅ Test HTML presence
+      - name: ✅ Run basic HTML test
         run: |
           echo "Running tests..."
-          grep -q "<h1>" index.html && echo "HTML Test Passed" || (echo "Test Failed" && exit 1)
+          grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Failed" && exit 1)
 
-      - name: 🐛 Debug: Check secrets
+      - name: 🐛 Debug: Show VM secrets (safe)
         run: |
-          echo "VM_USER: ${{ secrets.VM_USER }}"
-          echo "VM_IP: ${{ secrets.VM_IP }}"
-          echo "Checking secret values before deploying..."
+          echo "VM_USER and VM_IP loaded"
+        env:
+          VM_USER: ${{ secrets.VM_USER }}
+          VM_IP: ${{ secrets.VM_IP }}
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+      - name: 🧰 Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
 
       - name: 🚀 Deploy to Azure VM via SCP
         env:
@@ -39,6 +42,5 @@ jobs:
           VM_USER: ${{ secrets.VM_USER }}
           VM_IP: ${{ secrets.VM_IP }}
         run: |
-          echo "Starting deploy..."
+          echo "Deploying to $VM_USER@$VM_IP..."
           sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* "$VM_USER@$VM_IP:/var/www/html/"
-
