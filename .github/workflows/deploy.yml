@@ -31,12 +31,12 @@ jobs:
           echo "Checking secret values before deploying..."
 
       - name: 🚀 Deploy to Azure VM via SCP
-        env:
-          VM_PASSWORD: ${{ secrets.VM_PASSWORD }}
-          VM_USER: ${{ secrets.VM_USER }}
-          VM_IP: ${{ secrets.VM_IP }}
         run: |
           echo "Starting deploy..."
           echo "scp command: sshpass -p ***** scp -o StrictHostKeyChecking=no -r dist/* $VM_USER@$VM_IP:/var/www/html/"
           sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* "$VM_USER@$VM_IP:/var/www/html/"
+        env:
+          VM_PASSWORD: ${{ secrets.VM_PASSWORD }}
+          VM_USER: ${{ secrets.VM_USER }}
+          VM_IP: ${{ secrets.VM_IP }}
 
