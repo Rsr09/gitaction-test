@@ -24,6 +24,19 @@ jobs:
         echo "Running tests..."
         grep -q "<h1>" index.html && echo "HTML Test Passed" || (echo "Test Failed" && exit 1)
 
-    - name: 🚀 Deploy to Azure VM via SCP
+    - name: 🐛 Debug: Check secrets
       run: |
-        sshpass -p "${{ secrets.VM_PASSWORD }}" scp -o StrictHostKeyChecking=no -r dist/* ${{ secrets.VM_USER }}@${{ secrets.VM_IP }}:/var/www/html/
+        echo "VM_USER: ${{ secrets.VM_USER }}"
+        echo "VM_IP: ${{ secrets.VM_IP }}"
+        echo "Checking secret values before deploying..."
+
+    - name: 🚀 Deploy to Azure VM via SCP
+      env:
+        VM_PASSWORD: ${{ secrets.VM_PASSWORD }}
+        VM_USER: ${{ secrets.VM_USER }}
+        VM_IP: ${{ secrets.VM_IP }}
+      run: |
+        echo "Starting deploy..."
+        echo "scp command: sshpass -p ***** scp -o StrictHostKeyChecking=no -r dist/* $VM_USER@$VM_IP:/var/www/html/"
+        sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* "$VM_USER@$VM_IP:/var/www/html/"
+
