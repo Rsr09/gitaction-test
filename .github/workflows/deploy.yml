@@ -5,12 +5,11 @@ on:
     branches: [ main ]
 
 jobs:
-
   build:
     name: 🧱 Build Site
     runs-on: ubuntu-latest
     outputs:
-      build-dir: ${{ steps.upload.outputs.artifact }}
+      artifact-name: site-dist
     steps:
       - uses: actions/checkout@v3
 
@@ -20,7 +19,7 @@ jobs:
           rsync -av --exclude dist . dist/
           echo "Build complete."
 
-      - name: 📦 Upload build as artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         id: upload
         with:
@@ -32,13 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: ⬇️ Download artifact
+      - name: Download artifact
         uses: actions/download-artifact@v3
         with:
           name: site-dist
           path: dist/
 
-      - name: Run basic test
+      - name: Run basic HTML test
         run: |
           grep -q "<h1>" dist/index.html && echo "✅ Test passed" || (echo "❌ Test failed" && exit 1)
 
@@ -47,13 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - name: ⬇️ Download artifact
+      - name: Download artifact
         uses: actions/download-artifact@v3
         with:
           name: site-dist
           path: dist/
 
-      - name: 🧰 Install sshpass
+      - name: Install sshpass
         run: |
           sudo apt-get update
           sudo apt-get install -y sshpass
