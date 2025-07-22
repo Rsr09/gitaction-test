@@ -19,17 +19,18 @@ jobs:
           rsync -av --exclude dist . dist/
           echo "Build completed."
 
-      - name: ✅ Run basic HTML test..
+      - name: ✅ Run basic HTML test
         run: |
           echo "Running tests..."
           grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Failed" && exit 1)
 
       - name: 🐛 Debug: Show VM secrets (safe)
-        run: |
-          echo "VM_USER and VM_IP loaded"
         env:
           VM_USER: ${{ secrets.VM_USER }}
           VM_IP: ${{ secrets.VM_IP }}
+        run: |
+          echo "VM_USER: $VM_USER"
+          echo "VM_IP: $VM_IP"
 
       - name: 🧰 Install sshpass
         run: |
