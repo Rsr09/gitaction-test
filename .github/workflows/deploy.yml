@@ -16,7 +16,7 @@ jobs:
       run: |
         echo "Building site..."
         mkdir -p dist
-        cp -r * dist/
+        rsync -av --exclude dist . dist/
         echo "Build completed."
 
     - name: ✅ Test HTML presence
