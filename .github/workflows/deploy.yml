@@ -1,0 +1,29 @@
+name: CI/CD Pipeline for Static Site
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 🧱 Build step (simulate for static site)
+      run: |
+        echo "Building site..."
+        mkdir -p dist
+        cp -r * dist/
+        echo "Build completed."
+
+    - name: ✅ Test HTML presence
+      run: |
+        echo "Running tests..."
+        grep -q "<h1>" index.html && echo "HTML Test Passed" || (echo "Test Failed" && exit 1)
+
+    - name: 🚀 Deploy to Azure VM via SCP
+      run: |
+        sshpass -p "${{ secrets.VM_PASSWORD }}" scp -o StrictHostKeyChecking=no -r dist/* ${{ secrets.VM_USER }}@${{ secrets.VM_IP }}:/var/www/html/
