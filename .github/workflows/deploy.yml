@@ -19,7 +19,7 @@ jobs:
           rsync -av --exclude dist . dist/
           echo "Build completed."
 
-      - name: ✅ Run basic HTML test
+      - name: ✅ Run basic HTML test..
         run: |
           echo "Running tests..."
           grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Failed" && exit 1)
