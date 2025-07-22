@@ -22,7 +22,7 @@ jobs:
       - name: ✅ Run basic HTML test
         run: |
           echo "Running tests..."
-          grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Failed" && exit 1)
+          grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Faileed" && exit 1)
 
       - name: 🐛 Debug:Show VM secrets (safe)
         env:
