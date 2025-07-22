@@ -5,39 +5,60 @@ on:
     branches: [ main ]
 
 jobs:
-  build-test-deploy:
+
+  build:
+    name: 🧱 Build Site
     runs-on: ubuntu-latest
-
+    outputs:
+      build-dir: ${{ steps.upload.outputs.artifact }}
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: 🧱 Build site
+      - name: Build static site
         run: |
-          echo "Building site..."
           mkdir -p dist
           rsync -av --exclude dist . dist/
-          echo "Build completed."
+          echo "Build complete."
 
-      - name: ✅ Run basic HTML test
-        run: |
-          echo "Running tests..."
-          grep -q "<h1>" index.html && echo "✅ HTML Test Passed" || (echo "❌ Test Failed" && exit 1)
+      - name: 📦 Upload build as artifact
+        uses: actions/upload-artifact@v3
+        id: upload
+        with:
+          name: site-dist
+          path: dist/
 
-      - name: 🐛 Debug:Show VM secrets (safe)
-        env:
-          VM_USER: ${{ secrets.VM_USER }}
-          VM_IP: ${{ secrets.VM_IP }}
+  test:
+    name: ✅ Test HTML
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: ⬇️ Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: site-dist
+          path: dist/
+
+      - name: Run basic test
         run: |
-          echo "VM_USER: $VM_USER"
-          echo "VM_IP: $VM_IP"
+          grep -q "<h1>" dist/index.html && echo "✅ Test passed" || (echo "❌ Test failed" && exit 1)
+
+  deploy:
+    name: 🚀 Deploy to Azure VM
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: ⬇️ Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: site-dist
+          path: dist/
 
       - name: 🧰 Install sshpass
         run: |
           sudo apt-get update
           sudo apt-get install -y sshpass
 
-      - name: 🚀 Deploy to Azure VM via SCP
+      - name: Deploy via SCP
         env:
           VM_PASSWORD: ${{ secrets.VM_PASSWORD }}
           VM_USER: ${{ secrets.VM_USER }}
