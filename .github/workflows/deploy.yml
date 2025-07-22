@@ -43,5 +43,5 @@ jobs:
           VM_USER: ${{ secrets.VM_USER }}
           VM_IP: ${{ secrets.VM_IP }}
         run: |
-          echo "Deploying to $VM_USER@$VM_IP..."
-          sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* "$VM_USER@$VM_IP:/var/www/html/"
+          sudo echo "Deploying to $VM_USER@$VM_IP..."
+          sudo sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* "$VM_USER@$VM_IP:/var/www/html/"
